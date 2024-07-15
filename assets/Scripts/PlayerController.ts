@@ -1,16 +1,20 @@
-import { _decorator, Component, Node, input, Input, EventMouse, Vec3 } from 'cc';
+import { _decorator, Component, Node, input, Input, EventMouse, Vec3, Animation } from 'cc';
 
 
 const { ccclass, property } = _decorator;
 
+
 @ccclass('PlayerController')
+
 export class PlayerController extends Component {
+  @property({type:Animation})
+  public BodyAdmin: Animation | null = null;
 
   private _startJump: boolean = false; // 是否接受到跳跃命令
   private _jumpStep: number = 0; // 跳跃步长 
 
   private _curJumpTime:number = 0; // 当前跳跃时间
-  private _jumpTime:number = 0.1; // 每次跳跃时间  
+  private _jumpTime:number = 0.3; // 每次跳跃时间s 
   private _curJumpSpeed:number = 0; // 当前跳跃速度
 
   private _curPos: Vec3 = new Vec3(); // 当前角色位置
@@ -35,6 +39,14 @@ export class PlayerController extends Component {
   jumpByStep(step:number){
     if (this._startJump)  return; // 上一步未完成之时不可再次触发
 
+    if(this.BodyAdmin){
+      if(step == 1){
+        this.BodyAdmin.play('oneStep')
+      }else if(step == 2){
+        this.BodyAdmin.play('twoStep')
+      }
+    }
+    console.log(this.BodyAdmin)
     this._startJump = true;
     this._jumpStep = step;
     this._curJumpTime = 0;
