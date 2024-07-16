@@ -18,11 +18,20 @@ export class PlayerController extends Component {
   private _deltaPos: Vec3 = new Vec3(0,0,0); // 跳跃过程中,当前帧移动位置差
   private _targetPos: Vec3 = new Vec3(); // 目标角色位置
 
-  start() {
-    console.log(this.BodyAnim);
+  private _curMoveIndex:number = 0; // 跳跃步数
 
+  start() {
     input.on(Input.EventType.MOUSE_UP, this.onMouseUp, this)
   }
+
+  setInputActive(active:boolean){
+    if(active){
+      input.on(Input.EventType.MOUSE_UP, this.onMouseUp, this)
+    }else{
+      input.off(Input.EventType.MOUSE_UP, this.onMouseUp, this)
+    }
+  }
+
 
   onMouseUp(evt: EventMouse) {
     const btnCode: number = evt.getButton();
@@ -43,7 +52,6 @@ export class PlayerController extends Component {
         this.BodyAnim.play('twoStep')
       }
     }
-    console.log(this.BodyAnim)
     this._startJump = true;
     this._jumpStep = step;
     this._curJumpTime = 0;
@@ -51,7 +59,18 @@ export class PlayerController extends Component {
     this.node.getPosition(this._curPos); // 将当前节点的位置储存到this._curPos中
 
     Vec3.add(this._targetPos,this._curPos,new Vec3(this._jumpStep, 0 , 0))
+
+    this._curMoveIndex += step
   }
+
+  onOnceJumpEnd(){
+    this.node.emit("JumpEnd", this._curMoveIndex)
+  }
+
+  reset(){
+    this._curMoveIndex = 0; // 跳跃步数置0
+  }
+
 
   update(dt: number): void { // 60帧代表每秒执行60次
     if(this._startJump){
@@ -61,7 +80,8 @@ export class PlayerController extends Component {
 
         this.node.setPosition(this._targetPos); // 移动到目标位置
         this._startJump = false; // 标记跳跃结束
-
+        
+        this.onOnceJumpEnd();
       }else{ // 跳跃中
 
         this.node.getPosition(this._curPos); // 获取当前的位置

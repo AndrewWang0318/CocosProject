@@ -1,9 +1,16 @@
-import { _decorator, Component, Prefab, instantiate, Node } from 'cc';
+import { _decorator, Component, Prefab, instantiate, Node, Vec3, Label } from 'cc';
+import { PlayerController } from './PlayerController';
 const { ccclass, property } = _decorator;
 
 enum BlockType {
     BT_NONE,
     BT_STONE
+}
+
+enum GameState{
+    GS_INIT,
+    GS_PLAYING,
+    GS_END,
 }
 
 
@@ -17,11 +24,94 @@ export class GameManage extends Component {
     public roadLength = 60;
     private _road: BlockType[] = [];
 
-    start() {
-        this.gengerateRoad(); // 生成道路
+    // 暴露出 PlayerController 基类并传入
+    @property({ type: PlayerController })
+    public playerCtrl: PlayerController | null = null;
+    // 暴露出 startMenu 节点并传入
+    @property( { type: Node } )
+    public startMenu: Node | null = null;
+    // 暴露出 Steps 节点并传入
+    @property( { type: Label } )
+    public stepsLabel: Label | null = null;
+
+
+
+
+    // 游戏开始的回调函数
+    start() { 
+        this.curState = GameState.GS_INIT;
+
+        this.playerCtrl?.node.on('JumpEnd',this.onPlayerJumpEnd,this); // 接收到了PlayerCtrl传递的JumpEnd事件
     }
     
-     // 道路生成逻辑
+    init(){
+        // 激活主界面
+        if(this.startMenu){
+            this.startMenu.active = true;
+        }
+        // 生成赛道
+        this.gengerateRoad();
+        if(this.playerCtrl){
+            this.playerCtrl.setInputActive(false);
+            this.playerCtrl.node.setPosition(Vec3.ZERO);
+        }
+        this.playerCtrl.reset();
+    }
+
+    set curState( value: GameState ){
+        switch (value) {
+            case GameState.GS_INIT:
+                this.init();
+                break;
+            case GameState.GS_PLAYING:
+                if(this.startMenu){
+                    this.startMenu.active = false;
+                }
+
+                if(this.stepsLabel){
+                    this.stepsLabel.string = '0'; // 将步数重置为0
+                }
+
+
+                // 设置 active 为 true 时会直接开始监听鼠标事件，此时鼠标抬起事件还未派发
+                // 会出现的现象就是，游戏开始的瞬间人物已经开始移动
+                // 因此，这里需要做延迟处理
+                setTimeout(()=>{
+                    if(this.playerCtrl){
+                        this.playerCtrl.setInputActive(true)
+                    }
+                },0.1)
+
+
+                break;
+            case GameState.GS_END:
+                alert("游戏结束");
+                this.init();
+                break;
+            default:
+                break;
+        }
+    }
+
+    onStartButtonClicked(){
+        this.curState = GameState.GS_PLAYING;
+    }
+
+    checkResult(moveIndex: number){
+        if(moveIndex < this.roadLength){
+            if(this._road[moveIndex] == BlockType.BT_NONE){ // 证明跳跃结束后在间隙上
+                this.curState = GameState.GS_END
+
+                // 可以添加坠落动画
+            }
+        } else {
+            // 跳过了最大长度
+            this.curState = GameState.GS_END
+        }
+    }
+
+
+    // 道路生成逻辑
     gengerateRoad(){
         // 清除旧赛道
         this.node.removeAllChildren();
@@ -34,7 +124,6 @@ export class GameManage extends Component {
             // 如果上一个推入的是空白那么当前必须要是石块
             if(this._road[i-1] === BlockType.BT_NONE){
                 this._road.push(BlockType.BT_STONE)
-                console.log(this._road[i-1] , i-1 , this._road,BlockType.BT_STONE)
             } else { // 否则推入石块或者空白
                 this._road.push(Math.floor( Math.random() * 2 ));
             }
@@ -70,9 +159,17 @@ export class GameManage extends Component {
 
     }
 
+    
+    // 游戏结束逻辑
+    onPlayerJumpEnd(moveIndex:number){
 
+        if(this.stepsLabel){
+            // 因为在最后一步可能出现步伐大的跳跃，但是此时无论跳跃是步伐大还是步伐小都不应该多增加分数
+            this.stepsLabel.string = '' + (moveIndex >= this.roadLength ? this.roadLength : moveIndex)
+        }
 
-
+        this.checkResult(moveIndex)
+    }
 
     // update(deltaTime: number) {
         
