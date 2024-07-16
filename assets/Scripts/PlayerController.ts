@@ -57,7 +57,7 @@ export class PlayerController extends Component {
     this._startJump = true;
     this._jumpStep = step;
     this._curJumpTime = 0;
-    this._curJumpSpeed = this._jumpStep / this._jumpTime;
+    this._curJumpSpeed = this._jumpStep / this._jumpTime; // 当前的速度
 
 
     
@@ -85,9 +85,10 @@ export class PlayerController extends Component {
       if(this._curJumpTime > this._jumpTime){ // 跳跃结束
 
         this.node.setPosition(this._targetPos); // 移动到目标位置
+
         this._startJump = false; // 标记跳跃结束
         
-        this.onOnceJumpEnd();
+        this.onOnceJumpEnd(); // 跳跃结束后进行播报
       }else{ // 跳跃中
 
         this.node.getPosition(this._curPos); // 获取当前的位置

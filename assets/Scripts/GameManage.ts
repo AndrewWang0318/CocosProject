@@ -85,8 +85,8 @@ export class GameManage extends Component {
 
                 break;
             case GameState.GS_END:
-                alert("游戏结束");
-                this.init();
+                
+                this.gameEnd()
                 break;
             default:
                 break;
@@ -160,7 +160,7 @@ export class GameManage extends Component {
     }
 
     
-    // 游戏结束逻辑
+    // 跳跃结束逻辑
     onPlayerJumpEnd(moveIndex:number){
 
         if(this.stepsLabel){
@@ -171,6 +171,12 @@ export class GameManage extends Component {
         this.checkResult(moveIndex)
     }
 
+    // 游戏结束逻辑
+    gameEnd(){
+        this.playerCtrl.BodyAnim.play('drop');
+
+        // this.init();
+    }
     // update(deltaTime: number) {
         
     // }
