@@ -324,7 +324,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": -1.5,
+      "x": 0,
       "y": 0,
       "z": 0
     },
@@ -416,6 +416,9 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "BodyAnim": {
+      "__id__": 12
+    },
     "_id": "02k1I7NfFMkoh+ux86Z2HU"
   },
   {

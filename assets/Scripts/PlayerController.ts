@@ -36,21 +36,25 @@ export class PlayerController extends Component {
   jumpByStep(step:number){
     if (this._startJump)  return; // 上一步未完成之时不可再次触发
 
+    this._startJump = true;
+
     if(this.BodyAnim){
-      if(step == 1){
+      if(step === 1){
         this.BodyAnim.play('oneStep')
-      }else if(step == 2){
+      }else if(step === 2){
         this.BodyAnim.play('twoStep')
       }
     }
-    console.log(this.BodyAnim)
-    this._startJump = true;
     this._jumpStep = step;
     this._curJumpTime = 0;
     this._curJumpSpeed = this._jumpStep / this._jumpTime;
+
+
+    
+
     this.node.getPosition(this._curPos); // 将当前节点的位置储存到this._curPos中
 
-    Vec3.add(this._targetPos,this._curPos,new Vec3(this._jumpStep, 0 , 0))
+    Vec3.add(this._targetPos,this._curPos,new Vec3(this._jumpStep, 0 , 0)); // 将目标点的位置修改为当前点 + 跳跃的距离
   }
 
   update(dt: number): void { // 60帧代表每秒执行60次
