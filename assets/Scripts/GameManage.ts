@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, instantiate, Node, CCInteger, math } from 'cc';
+import { _decorator, Component, Prefab, instantiate, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
 enum BlockType {
@@ -14,7 +14,7 @@ export class GameManage extends Component {
     public cubePrfb : Prefab | null = null;
     // 赛道长度
     @property
-    public roadLength = 50;
+    public roadLength = 60;
     private _road: BlockType[] = [];
 
     start() {
@@ -30,15 +30,16 @@ export class GameManage extends Component {
         this._road.push(BlockType.BT_STONE);
 
         // 根据长度生成赛道
-        for (let i = 0; i < this.roadLength; i++) {
+        for (let i = 1; i < this.roadLength; i++) {
             // 如果上一个推入的是空白那么当前必须要是石块
             if(this._road[i-1] === BlockType.BT_NONE){
                 this._road.push(BlockType.BT_STONE)
+                console.log(this._road[i-1] , i-1 , this._road,BlockType.BT_STONE)
             } else { // 否则推入石块或者空白
-                this._road.push(Math.floor( math.random() * 2 ))
+                this._road.push(Math.floor( Math.random() * 2 ));
             }
-            
         }
+        
 
         for (let j = 0; j < this._road.length; j++) {
             let block: Node = this.spawnBlockByType(this._road[j])
@@ -53,7 +54,7 @@ export class GameManage extends Component {
 
     // 石块生成逻辑
     spawnBlockByType(type:BlockType){
-        if(!this.cubePrfb) return ;
+        if(!this.cubePrfb) return null;
 
 
         let block: Node | null = null;
@@ -62,12 +63,10 @@ export class GameManage extends Component {
             case BlockType.BT_STONE:
                 block = instantiate(this.cubePrfb);
                 break;
-            default:
-                break;
         }
 
 
-        return block
+        return block;
 
     }
 
