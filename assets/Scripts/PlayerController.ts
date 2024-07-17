@@ -84,7 +84,7 @@ export class PlayerController extends Component {
 
       if(this._curJumpTime > this._jumpTime){ // 跳跃结束
 
-        this.node.setPosition(this._targetPos); // 移动到目标位置
+        this.node.setPosition(this._targetPos); // 将数据切换到目标位置
 
         this._startJump = false; // 标记跳跃结束
         

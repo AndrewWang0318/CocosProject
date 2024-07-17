@@ -33,8 +33,12 @@ export class GameManage extends Component {
     // 暴露出 Steps 节点并传入
     @property( { type: Label } )
     public stepsLabel: Label | null = null;
-
-
+    // 暴露出 endMenu 节点并传入
+    @property( { type: Node } )
+    public endMenu: Node | null = null;
+    // 暴露出 endLabel 节点并传入
+    @property( { type: Label } )
+    public endLabel: Label | null = null;
 
 
     // 游戏开始的回调函数
@@ -45,10 +49,16 @@ export class GameManage extends Component {
     }
     
     init(){
+
         // 激活主界面
         if(this.startMenu){
             this.startMenu.active = true;
         }
+        // 隐藏游戏结束界面
+        if(this.endMenu){
+            this.endMenu.active = false;
+        }
+
         // 生成赛道
         this.gengerateRoad();
         if(this.playerCtrl){
@@ -96,6 +106,20 @@ export class GameManage extends Component {
     onStartButtonClicked(){
         this.curState = GameState.GS_PLAYING;
     }
+
+    onReStartButtonClicked(){
+        // 隐藏游戏结束界面
+        if(this.endMenu){
+            this.endMenu.active = false;
+        }
+
+        this.playerCtrl.BodyAnim.node.setPosition(Vec3.ZERO);
+
+        this.curState = GameState.GS_INIT;
+
+        this.onStartButtonClicked();
+    }
+
 
     checkResult(moveIndex: number){
         if(moveIndex < this.roadLength){
@@ -169,12 +193,25 @@ export class GameManage extends Component {
         }
 
         this.checkResult(moveIndex)
+
+
+        if(this.endLabel){
+            this.endLabel.string = '您的得分是：' +  (moveIndex >= this.roadLength ? this.roadLength : moveIndex); // 将步数重置为0
+        }
     }
 
     // 游戏结束逻辑
     gameEnd(){
         this.playerCtrl.BodyAnim.play('drop');
 
+        // 隐藏游戏结束界面
+        if(this.endMenu){
+            this.endMenu.active = true;
+        }
+        if(this.playerCtrl){
+            this.playerCtrl.setInputActive(false);
+        }
+       
         // this.init();
     }
     // update(deltaTime: number) {
