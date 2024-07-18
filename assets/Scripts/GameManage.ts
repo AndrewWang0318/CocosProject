@@ -49,7 +49,6 @@ export class GameManage extends Component {
     }
     
     init(){
-
         // 激活主界面
         if(this.startMenu){
             this.startMenu.active = true;

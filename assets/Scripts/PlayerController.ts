@@ -45,8 +45,6 @@ export class PlayerController extends Component {
   jumpByStep(step:number){
     if (this._startJump)  return; // 上一步未完成之时不可再次触发
 
-    this._startJump = true;
-
     if(this.BodyAnim){
       if(step === 1){
         this.BodyAnim.play('oneStep')
@@ -59,7 +57,10 @@ export class PlayerController extends Component {
     this._curJumpTime = 0;
     this._curJumpSpeed = this._jumpStep / this._jumpTime; // 当前的速度
 
-
+    // 需要当前跳跃步数 
+    // 当前跳跃时间：用于在updae中累加后并计算是否跳跃结束 
+    // 速度: 在跳跃中的时候根据 速度 x 时间 = 距离 算出 _delPost 的差值
+    
     
 
     this.node.getPosition(this._curPos); // 将当前节点的位置储存到this._curPos中
@@ -92,6 +93,8 @@ export class PlayerController extends Component {
       }else{ // 跳跃中
 
         this.node.getPosition(this._curPos); // 获取当前的位置
+
+
         this._deltaPos.x = this._curJumpSpeed * dt;
         Vec3.add(this._curPos, this._curPos, this._deltaPos)
         this.node.setPosition(this._curPos);
